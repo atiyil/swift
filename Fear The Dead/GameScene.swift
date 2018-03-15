@@ -24,13 +24,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   
   // MARK: - SKScene
   
-  override func didMoveToView(view: SKView) {
+  override func didMove(to view: SKView) {
     // Setup physics world's contact delegate
     physicsWorld.contactDelegate = self
     
-    player = self.childNodeWithName("player") as? SKSpriteNode
+    player = self.childNode(withName: "player") as? SKSpriteNode
     self.listener = player
-    goal = self.childNodeWithName("goal") as? SKSpriteNode
+    goal = self.childNode(withName: "goal") as? SKSpriteNode
     
     for child in self.children {
       if child.name == "zombie" {
@@ -49,21 +49,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   
   // MARK: Touch Handling
   
-  override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     handleTouches(touches)
   }
   
-  override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     handleTouches(touches)
   }
   
-  override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     handleTouches(touches)
   }
   
-  private func handleTouches(touches: Set<UITouch>) {
+  fileprivate func handleTouches(_ touches: Set<UITouch>) {
     for touch in touches {
-      let touchLocation = touch.locationInNode(self)
+      let touchLocation = touch.location(in: self)
       lastTouch = touchLocation
     }
   }
@@ -79,7 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   }
   
   // Determines if the player's position should be updated
-  private func shouldMove(currentPosition currentPosition: CGPoint, touchPosition: CGPoint) -> Bool {
+  fileprivate func shouldMove(currentPosition: CGPoint, touchPosition: CGPoint) -> Bool {
     return abs(currentPosition.x - touchPosition.x) > player!.frame.width / 2 ||
       abs(currentPosition.y - touchPosition.y) > player!.frame.height/2
   }
@@ -90,10 +90,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       let currentPosition = player!.position
       if shouldMove(currentPosition: currentPosition, touchPosition: touch) {
         
-        let angle = atan2(currentPosition.y - touch.y, currentPosition.x - touch.x) + CGFloat(M_PI)
-        let rotateAction = SKAction.rotateToAngle(angle + CGFloat(M_PI*0.5), duration: 0)
+        let angle = atan2(currentPosition.y - touch.y, currentPosition.x - touch.x) + CGFloat(Double.pi)
+        let rotateAction = SKAction.rotate(toAngle: angle + CGFloat(Double.pi*0.5), duration: 0)
         
-        player!.runAction(rotateAction)
+        player!.run(rotateAction)
         
         let velocotyX = playerSpeed * cos(angle)
         let velocityY = playerSpeed * sin(angle)
@@ -102,7 +102,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player!.physicsBody!.velocity = newVelocity;
         updateCamera()
       } else {
-        player!.physicsBody!.resting = true
+        player!.physicsBody!.isResting = true
       }
     }
   }
@@ -120,9 +120,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     for zombie in zombies {
       let currentPosition = zombie.position
       
-      let angle = atan2(currentPosition.y - targetPosition.y, currentPosition.x - targetPosition.x) + CGFloat(M_PI)
-      let rotateAction = SKAction.rotateToAngle(angle + CGFloat(M_PI*0.5), duration: 0.0)
-      zombie.runAction(rotateAction)
+      let angle = atan2(currentPosition.y - targetPosition.y, currentPosition.x - targetPosition.x) + CGFloat(Double.pi)
+      let rotateAction = SKAction.rotate(toAngle: angle + CGFloat(Double.pi*0.5), duration: 0.0)
+      zombie.run(rotateAction)
       
       let velocotyX = zombieSpeed * cos(angle)
       let velocityY = zombieSpeed * sin(angle)
@@ -135,7 +135,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   
   // MARK: - SKPhysicsContactDelegate
   
-  func didBeginContact(contact: SKPhysicsContact) {
+  func didBegin(_ contact: SKPhysicsContact) {
     // 1. Create local variables for two physics bodies
     var firstBody: SKPhysicsBody
     var secondBody: SKPhysicsBody
@@ -164,12 +164,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
   
   // MARK: Helper Functions
   
-  private func gameOver(didWin: Bool) {
+  fileprivate func gameOver(_ didWin: Bool) {
     print("- - - Game Ended - - -")
     let menuScene = MenuScene(size: self.size)
     menuScene.soundToPlay = didWin ? "fear_win.mp3" : "fear_lose.mp3"
-    let transition = SKTransition.flipVerticalWithDuration(1.0)
-    menuScene.scaleMode = SKSceneScaleMode.AspectFill
+    let transition = SKTransition.flipVertical(withDuration: 1.0)
+    menuScene.scaleMode = SKSceneScaleMode.aspectFill
     self.scene!.view?.presentScene(menuScene, transition: transition)
   }
   
